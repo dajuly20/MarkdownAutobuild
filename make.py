@@ -120,6 +120,13 @@ class MarkdownRecursive:
 
         return content
 
+    def _get_title(self, content: str) -> str:
+        """Extract first H1 heading from markdown content."""
+        for line in content.splitlines():
+            if line.startswith('# '):
+                return line[2:].strip()
+        return self.input_file.stem.replace('-', ' ').replace('_', ' ')
+
     def run(self):
         print(f"Input: {self.input_file}")
         print("Building combined markdown (inlining linked files)...")
@@ -132,13 +139,36 @@ class MarkdownRecursive:
         temp_md = output_path.with_suffix('.md')
         temp_md.write_text(combined_md, encoding='utf-8')
 
+        # Cover page: use cover.tex if it exists next to this script
+        script_dir = Path(__file__).parent
+        cover_tex = script_dir / 'cover.tex'
+        logo_png = script_dir / 'logo.png'
+        title = self._get_title(combined_md)
+
+        pandoc_cmd = [
+            'pandoc', str(temp_md), '-o', str(self.output_pdf),
+            '--pdf-engine=xelatex', '--toc',
+            f'--metadata=title:{title}',
+        ]
+
+        if cover_tex.exists() and logo_png.exists():
+            # Write a temp cover with title baked in
+            cover_content = cover_tex.read_text(encoding='utf-8')
+            cover_content = cover_content.replace('\\thetitle', title.replace('\\', '\\\\'))
+            temp_cover = output_path.parent / '_cover.tex'
+            temp_cover.write_text(cover_content, encoding='utf-8')
+            pandoc_cmd += [
+                f'--include-before-body={temp_cover}',
+                '-V', 'graphics=true',
+            ]
+
         print(f"Building PDF: {self.output_pdf}")
         try:
             subprocess.run(
-                ['pandoc', str(temp_md), '-o', str(self.output_pdf),
-                 '--pdf-engine=xelatex', '--toc'],
+                pandoc_cmd,
                 check=True,
-                capture_output=True
+                capture_output=True,
+                cwd=str(script_dir)
             )
             print(f"PDF created: {self.output_pdf}")
         except subprocess.CalledProcessError as e:
