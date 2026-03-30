@@ -1,5 +1,73 @@
 # Markdown to PDF Converter
 
+Dieses Repo stellt ein Makefile und ein Python-Skript bereit, um Markdown-Dateien automatisch zu PDFs zu konvertieren — auch rekursiv über verlinkte `.md`-Dateien hinweg.
+
+## Als Git-Submodul einbinden
+
+```bash
+# Im Projektverzeichnis (z.B. unter docs/):
+git submodule add https://github.com/dajuly20/MarkdownAutobuild docs/pdf-tools
+
+# Beim Klonen des Projekts (Submodule mit initialisieren):
+git clone --recurse-submodules <dein-repo-url>
+
+# Nachträglich in einem bereits geklonten Repo:
+git submodule update --init
+
+# Updates aus diesem Repo ziehen:
+cd docs/pdf-tools && git pull
+cd ../.. && git add docs/pdf-tools && git commit -m "chore(docs): update pdf-tools submodule"
+```
+
+## Installation: Wrapper-Makefiles anlegen
+
+Nach dem Einbinden als Submodul werden zwei Wrapper-Makefiles benötigt.
+
+### 1. `docs/Makefile` — Wrapper im Dokumentationsordner
+
+Erstelle eine Datei `docs/Makefile` (neben dem `pdf-tools/`-Unterordner):
+
+```makefile
+# docs/Makefile — delegates to submodule
+# Update submodule: cd pdf-tools && git pull
+%:
+	$(MAKE) -f pdf-tools/Makefile RECURSIVE_SCRIPT=pdf-tools/make.py $@
+```
+
+Damit kannst du aus `docs/` heraus direkt arbeiten:
+
+```bash
+cd docs
+make Deploy-Anleitung   # → docs/pdf/Deploy-Anleitung.pdf
+make all                # → alle .md → pdf/
+make list               # alle .md-Dateien anzeigen
+make clean              # pdf/ löschen
+```
+
+### 2. Projekt-Root `Makefile` — `make docu` im Projektverzeichnis
+
+Im Projektverzeichnis (wo sich auch `docs/` befindet) ein `Makefile` anlegen **oder** in ein bestehendes folgendes Target einfügen:
+
+```makefile
+# Makefile (Projekt-Root)
+docu:
+	$(MAKE) -C docs all
+
+docu-clean:
+	$(MAKE) -C docs clean
+```
+
+Dann reicht im Projektroot:
+
+```bash
+make docu        # baut alle PDFs in docs/pdf/
+make docu-clean  # räumt docs/pdf/ auf
+```
+
+> **Hinweis:** Falls im Projektroot schon ein `Makefile` existiert, einfach die Targets `docu` und `docu-clean` einfügen.
+
+---
+
 Dieses Verzeichnis enthält Markdown-Dokumentationen und ein Makefile zur PDF-Konvertierung mit pandoc.
 
 ## Voraussetzungen
