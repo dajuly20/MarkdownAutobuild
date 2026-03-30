@@ -56,15 +56,36 @@ clean:
 	rm -rf pdf
 	@echo "🗑️  Bereinigt: pdf/"
 
+# INSTALL TARGET: Prüfe und installiere alle Abhängigkeiten
+install:
+	@echo "🔍 Checking dependencies..."
+	@MISSING=""; \
+	command -v pandoc >/dev/null 2>&1 && echo "  [OK] pandoc" || { echo "  [MISSING] pandoc"; MISSING="$$MISSING pandoc"; }; \
+	command -v python3 >/dev/null 2>&1 && echo "  [OK] python3" || { echo "  [MISSING] python3"; MISSING="$$MISSING python3"; }; \
+	command -v xelatex >/dev/null 2>&1 && echo "  [OK] xelatex" || { echo "  [MISSING] xelatex (texlive)"; MISSING="$$MISSING texlive-latex-base texlive-fonts-recommended texlive-latex-recommended texlive-xetex texlive-lang-german"; }; \
+	command -v rsvg-convert >/dev/null 2>&1 && echo "  [OK] rsvg-convert" || { echo "  [MISSING] rsvg-convert (für SVG in PDFs)"; MISSING="$$MISSING librsvg2-bin"; }; \
+	echo ""; \
+	if [ -n "$$MISSING" ]; then \
+		echo "📦 Installiere:$$MISSING"; \
+		echo ""; \
+		sudo apt install -y $$MISSING; \
+		echo ""; \
+		echo "✅ Installation abgeschlossen."; \
+	else \
+		echo "✅ Alle Abhängigkeiten sind installiert."; \
+	fi
+
 # HELP TARGET: Zeige Hilfe
 help:
 	@echo "📚 Markdown to PDF Converter"
 	@echo ""
 	@echo "Verwendung:"
-	@echo "  make            - Baue alle .md-Dateien (aktuelles Verzeichnis)"
+	@echo "  make            - Baue README.md → pdf/"
+	@echo "  make readme     - Baue README.md → pdf/"
 	@echo "  make all-recursive - Baue alle .md-Dateien (inkl. Unterordner)"
 	@echo "  make recurse    - Zeige gefundene Dateien (README.md)"
 	@echo "  make list       - Zeige alle .md-Dateien"
-	@echo "  make clean      - Lösche PDFs"
+	@echo "  make clean      - Lösche pdf/"
+	@echo "  make install    - Installiere alle Abhängigkeiten"
 	@echo "  make help       - Zeige diese Hilfe"
 	@echo ""
