@@ -26,7 +26,7 @@ all-recursive: $(PDF_TARGETS_RECURSIVE)
 # Pattern Rule: Baue PDF aus .md-Datei
 pdf/%.pdf: %.md
 	@mkdir -p $(dir $@)
-	python3 $(RECURSIVE_SCRIPT) $< -n
+	python3 $(RECURSIVE_SCRIPT) $<
 	@echo "✅ $@ erstellt"
 
 # README TARGET: Findet README.md (case-insensitive) und baut PDF
