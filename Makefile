@@ -62,7 +62,7 @@ install:
 	@MISSING=""; \
 	command -v pandoc >/dev/null 2>&1 && echo "  [OK] pandoc" || { echo "  [MISSING] pandoc"; MISSING="$$MISSING pandoc"; }; \
 	command -v python3 >/dev/null 2>&1 && echo "  [OK] python3" || { echo "  [MISSING] python3"; MISSING="$$MISSING python3"; }; \
-	command -v xelatex >/dev/null 2>&1 && echo "  [OK] xelatex" || { echo "  [MISSING] xelatex (texlive)"; MISSING="$$MISSING texlive-latex-base texlive-fonts-recommended texlive-latex-recommended texlive-xetex texlive-lang-german"; }; \
+	command -v xelatex >/dev/null 2>&1 && echo "  [OK] xelatex" || { echo "  [MISSING] xelatex (texlive)"; MISSING="$$MISSING texlive-latex-base texlive-fonts-recommended texlive-latex-recommended texlive-xetex texlive-latex-extra texlive-pictures texlive-plain-generic texlive-lang-german fonts-lato"; }; \
 	command -v rsvg-convert >/dev/null 2>&1 && echo "  [OK] rsvg-convert" || { echo "  [MISSING] rsvg-convert (für SVG in PDFs)"; MISSING="$$MISSING librsvg2-bin"; }; \
 	echo ""; \
 	if [ -n "$$MISSING" ]; then \
